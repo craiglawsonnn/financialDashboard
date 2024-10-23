@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 type FinancialData = {
   symbol: string;
@@ -77,22 +77,29 @@ const MarketOverview: React.FC = () => {
       {selectedStock && (
         <div>
           <h4>{selectedStock} Stock Price</h4>
-          <div>
+          <div className="time-range-buttons">
+            <button onClick={() => setTimeRange('1D')}>1D</button>
+            <button onClick={() => setTimeRange('5D')}>5D</button>
             <button onClick={() => setTimeRange('1M')}>1M</button>
-            <button onClick={() => setTimeRange('3M')}>3M</button>
             <button onClick={() => setTimeRange('6M')}>6M</button>
             <button onClick={() => setTimeRange('1Y')}>1Y</button>
+            <button onClick={() => setTimeRange('5Y')}>5Y</button>
           </div>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={stockData}>
+            <AreaChart data={stockData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
-              <YAxis />
+              <YAxis domain={['dataMin', 'dataMax']} />
               <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="price" stroke="#8884d8" />
-            </LineChart>
+              <Area type="monotone" dataKey="price" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+            </AreaChart>
           </ResponsiveContainer>
+          <div className="stock-info">
+            <p>Previous Close: {stockData[stockData.length - 2]?.price.toFixed(2)}</p>
+            <p>Open: {stockData[0]?.price.toFixed(2)}</p>
+            <p>Day's Range: {Math.min(...stockData.map(d => d.price)).toFixed(2)} - {Math.max(...stockData.map(d => d.price)).toFixed(2)}</p>
+            {/* Add more stock information here */}
+          </div>
         </div>
       )}
     </div>

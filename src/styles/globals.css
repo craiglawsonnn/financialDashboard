@@ -15,7 +15,7 @@ body {
   gap: 20px;
 }
 
-.dashboard-grid.fullscreen {
+.dashboard-grid.has-fullscreen {
   display: block;
 }
 
@@ -25,14 +25,15 @@ body {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   position: relative;
+  transition: all 0.3s ease;
 }
 
 .module.fullscreen {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 80px; /* Adjust based on your header height */
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
   z-index: 1000;
   overflow: auto;
 }
@@ -52,6 +53,20 @@ body {
   border: none;
   cursor: pointer;
   font-size: 1.2em;
+}
+
+.time-range-buttons button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.stock-info {
+  margin-top: 20px;
+}
+
+.stock-info p {
+  margin: 5px 0;
 }
 
 .market-overview ul {

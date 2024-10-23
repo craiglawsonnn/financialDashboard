@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
             <div
               {...provided.droppableProps}
               ref={provided.innerRef}
-              className={`dashboard-grid ${fullscreenTile ? 'fullscreen' : ''}`}
+              className={`dashboard-grid ${fullscreenTile ? 'has-fullscreen' : ''}`}
             >
               {tiles.map((tile, index) => (
                 <Draggable key={tile.id} draggableId={tile.id} index={index}>
