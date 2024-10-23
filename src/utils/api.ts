@@ -48,14 +48,17 @@ export async function fetchExchangeRate(fromCurrency: string, toCurrency: string
 
     const exchangeRateData = response.data['Realtime Currency Exchange Rate'];
     if (!exchangeRateData) {
-      console.error('Unexpected API response structure:', response.data);
-      return null;
+      throw new Error('Unexpected API response structure');
     }
 
-    const exchangeRate = exchangeRateData['5. Exchange Rate'];
-    return parseFloat(exchangeRate);
+    return {
+      fromCurrency: exchangeRateData['1. From_Currency Code'],
+      toCurrency: exchangeRateData['3. To_Currency Code'],
+      exchangeRate: parseFloat(exchangeRateData['5. Exchange Rate']),
+      lastRefreshed: exchangeRateData['6. Last Refreshed'],
+    };
   } catch (error) {
     console.error('Error fetching exchange rate:', error);
-    return null;
+    throw error;
   }
 }

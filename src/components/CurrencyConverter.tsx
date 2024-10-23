@@ -1,52 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { fetchExchangeRates } from '../utils/api';
-
-type ExchangeRates = {
-  [key: string]: number;
-};
+import { fetchExchangeRate } from '../utils/api';
 
 const CurrencyConverter: React.FC = () => {
   const [amount, setAmount] = useState<number>(1);
   const [fromCurrency, setFromCurrency] = useState<string>('USD');
   const [toCurrency, setToCurrency] = useState<string>('EUR');
-  const [exchangeRates, setExchangeRates] = useState<ExchangeRates>({});
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchExchangeRates().then(setExchangeRates);
-  }, []);
+    const getExchangeRate = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await fetchExchangeRate(fromCurrency, toCurrency);
+        setExchangeRate(data.exchangeRate);
+      } catch (err) {
+        setError('Error fetching exchange rate. Please try again.');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getExchangeRate();
+  }, [fromCurrency, toCurrency]);
 
   useEffect(() => {
-    if (exchangeRates[fromCurrency] && exchangeRates[toCurrency]) {
-      const rate = exchangeRates[toCurrency] / exchangeRates[fromCurrency];
-      setConvertedAmount(amount * rate);
+    if (exchangeRate !== null) {
+      setConvertedAmount(amount * exchangeRate);
     }
-  }, [amount, fromCurrency, toCurrency, exchangeRates]);
+  }, [amount, exchangeRate]);
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAmount(parseFloat(e.target.value));
+  };
+
+  const handleFromCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFromCurrency(e.target.value);
+  };
+
+  const handleToCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setToCurrency(e.target.value);
+  };
 
   return (
     <div className="currency-converter">
       <h3>Currency Converter</h3>
-      <input
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(Number(e.target.value))}
-      />
-      <select value={fromCurrency} onChange={(e) => setFromCurrency(e.target.value)}>
-        {Object.keys(exchangeRates).map((currency) => (
-          <option key={currency} value={currency}>
-            {currency}
-          </option>
-        ))}
+      <input type="number" value={amount} onChange={handleAmountChange} />
+      <select value={fromCurrency} onChange={handleFromCurrencyChange}>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+        <option value="JPY">JPY</option>
+        {/* Add more currency options as needed */}
       </select>
       <span>to</span>
-      <select value={toCurrency} onChange={(e) => setToCurrency(e.target.value)}>
-        {Object.keys(exchangeRates).map((currency) => (
-          <option key={currency} value={currency}>
-            {currency}
-          </option>
-        ))}
+      <select value={toCurrency} onChange={handleToCurrencyChange}>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+        <option value="JPY">JPY</option>
+        {/* Add more currency options as needed */}
       </select>
-      {convertedAmount !== null && (
+      {isLoading && <p>Loading...</p>}
+      {error && <p className="error">{error}</p>}
+      {!isLoading && !error && convertedAmount !== null && (
         <p>
           {amount} {fromCurrency} = {convertedAmount.toFixed(2)} {toCurrency}
         </p>
