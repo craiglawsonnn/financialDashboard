@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_KEY = 'YOUR_ALPHA_VANTAGE_API_KEY';
+const API_KEY = '4Q0QKO7FCIZ4CTQV';
 const BASE_URL = 'https://www.alphavantage.co/query';
 
 export async function fetchStockData(symbol: string, interval: string = 'DAILY') {
@@ -28,20 +28,27 @@ export async function fetchStockData(symbol: string, interval: string = 'DAILY')
 
 export async function fetchMultipleStocks(symbols: string[]) {
   try {
-    const response = await axios.get(BASE_URL, {
-      params: {
-        function: 'BATCH_STOCK_QUOTES',
-        symbols: symbols.join(','),
-        apikey: API_KEY,
-      },
-    });
+    const responses = await Promise.all(
+      symbols.map(symbol =>
+        axios.get(BASE_URL, {
+          params: {
+            function: 'GLOBAL_QUOTE',
+            symbol: symbol,
+            apikey: API_KEY,
+          },
+        })
+      )
+    );
 
-    return response.data['Stock Quotes'].map((quote: any) => ({
-      symbol: quote['1. symbol'],
-      price: parseFloat(quote['2. price']),
-      volume: parseInt(quote['3. volume']),
-      timestamp: quote['4. timestamp'],
-    }));
+    return responses.map(response => {
+      const data = response.data['Global Quote'];
+      return {
+        symbol: data['01. symbol'],
+        price: parseFloat(data['05. price']),
+        change: parseFloat(data['09. change']),
+        changePercent: parseFloat(data['10. change percent'].replace('%', '')),
+      };
+    });
   } catch (error) {
     console.error('Error fetching multiple stocks:', error);
     return [];

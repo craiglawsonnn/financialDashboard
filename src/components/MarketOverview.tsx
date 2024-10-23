@@ -10,8 +10,8 @@ type StockData = {
 type StockOverview = {
   symbol: string;
   price: number;
-  volume: number;
-  timestamp: string;
+  change: number;
+  changePercent: number;
 };
 
 const MarketOverview: React.FC = () => {
@@ -25,7 +25,15 @@ const MarketOverview: React.FC = () => {
     const symbols = ['AAPL', 'GOOGL', 'MSFT', 'AMZN']; // You can add more symbols
     setIsLoading(true);
     fetchMultipleStocks(symbols)
-      .then(setStockOverviews)
+      .then((data) => {
+        if (data.length > 0) {
+          setStockOverviews(data);
+          setSelectedStock(data[0].symbol); // Automatically select the first stock
+        } else {
+          console.error('No stock data received');
+        }
+      })
+      .catch((error) => console.error('Error fetching stock overviews:', error))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -43,12 +51,12 @@ const MarketOverview: React.FC = () => {
       <h3>Market Overview</h3>
       {isLoading ? (
         <p>Loading...</p>
-      ) : (
+      ) : stockOverviews.length > 0 ? (
         <>
           <ul>
             {stockOverviews.map((stock) => (
               <li key={stock.symbol} onClick={() => setSelectedStock(stock.symbol)} style={{cursor: 'pointer'}}>
-                {stock.symbol}: ${stock.price.toFixed(2)} (Volume: {stock.volume})
+                {stock.symbol}: ${stock.price.toFixed(2)} ({stock.change > 0 ? '+' : ''}{stock.change.toFixed(2)} / {stock.changePercent.toFixed(2)}%)
               </li>
             ))}
           </ul>
@@ -79,6 +87,8 @@ const MarketOverview: React.FC = () => {
             </div>
           )}
         </>
+      ) : (
+        <p>No stock data available. Please try again later.</p>
       )}
     </div>
   );
