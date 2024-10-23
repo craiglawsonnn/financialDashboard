@@ -15,11 +15,43 @@ body {
   gap: 20px;
 }
 
+.dashboard-grid.fullscreen {
+  display: block;
+}
+
 .module {
   background-color: #f0f0f0;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.module.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  overflow: auto;
+}
+
+.module-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.module-header span {
+  cursor: grab;
+}
+
+.module-header button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
 }
 
 .market-overview ul {
