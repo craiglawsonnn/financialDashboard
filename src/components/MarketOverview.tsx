@@ -11,8 +11,8 @@ const MarketOverview: React.FC = () => {
   const [selectedStock, setSelectedStock] = useState<string>('AAPL');
   const [stockData, setStockData] = useState<StockData[]>([]);
   const [timeRange, setTimeRange] = useState<string>('1M');
-  const [zoomDomain, setZoomDomain] = useState<{ start: number; end: number } | null>(null);
-  const chartRef = useRef<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
