@@ -29,4 +29,15 @@ body {
 
 .market-overview li {
   margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.market-overview li:hover {
+  text-decoration: underline;
+}
+
+.market-overview button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
 }
