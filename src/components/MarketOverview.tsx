@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { fetchStockData, fetchMultipleStocks } from '../utils/api';
 
@@ -12,15 +12,6 @@ type StockOverview = {
   price: number;
   change: number;
   changePercent: number;
-};
-
-import React, { useEffect, useState, useRef } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { fetchStockData } from '../utils/api';
-
-type StockData = {
-  date: string;
-  price: number;
 };
 
 const MarketOverview: React.FC = () => {
