@@ -7,13 +7,6 @@ type StockData = {
   price: number;
 };
 
-type StockOverview = {
-  symbol: string;
-  price: number;
-  change: number;
-  changePercent: number;
-};
-
 const MarketOverview: React.FC = () => {
   const [selectedStock, setSelectedStock] = useState<string>('AAPL');
   const [stockData, setStockData] = useState<StockData[]>([]);
@@ -22,20 +15,26 @@ const MarketOverview: React.FC = () => {
   const chartRef = useRef<any>(null);
 
   useEffect(() => {
-    if (selectedStock) {
-      fetchStockData(selectedStock, timeRange).then(setStockData);
-    }
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await fetchStockData(selectedStock, timeRange);
+        if (data.length === 0) {
+          setError('No data available for the selected stock and time range.');
+        } else {
+          setStockData(data);
+        }
+      } catch (err) {
+        setError('An error occurred while fetching stock data.');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, [selectedStock, timeRange]);
-
-  const handleZoom = (domain: { refAreaLeft: number; refAreaRight: number }) => {
-    if (domain.refAreaLeft && domain.refAreaRight) {
-      setZoomDomain({ start: domain.refAreaLeft, end: domain.refAreaRight });
-    }
-  };
-
-  const handleResetZoom = () => {
-    setZoomDomain(null);
-  };
 
   return (
     <div className="market-overview">
@@ -52,25 +51,20 @@ const MarketOverview: React.FC = () => {
         <button onClick={() => setTimeRange('1M')}>1M</button>
         <button onClick={() => setTimeRange('3M')}>3M</button>
         <button onClick={() => setTimeRange('1Y')}>1Y</button>
-        <button onClick={handleResetZoom}>Reset Zoom</button>
       </div>
-      <ResponsiveContainer width="100%" height={300}>
-        <AreaChart
-          data={stockData}
-          ref={chartRef}
-          onMouseDown={() => {}}
-          onMouseMove={(e) => e && e.activeLabel && handleZoom(e.activeLabel)}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="date" 
-            domain={zoomDomain ? [zoomDomain.start, zoomDomain.end] : ['auto', 'auto']}
-          />
-          <YAxis domain={['auto', 'auto']} />
-          <Tooltip />
-          <Area type="monotone" dataKey="price" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
-        </AreaChart>
-      </ResponsiveContainer>
+      {isLoading && <p>Loading...</p>}
+      {error && <p className="error">{error}</p>}
+      {!isLoading && !error && stockData.length > 0 && (
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={stockData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis domain={['auto', 'auto']} />
+            <Tooltip />
+            <Area type="monotone" dataKey="price" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+          </AreaChart>
+        </ResponsiveContainer>
+      )}
     </div>
   );
 };
